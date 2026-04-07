@@ -2,7 +2,7 @@
   "name": "ezsuperpowers",
   "displayName": "ezsuperpowers — Plain Language Mode for Claude",
   "description": "Adds a plain-language explanation layer to Claude brainstorming. Every technical response gets a nondev-friendly cause-and-effect summary.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "NorwayIsHere",
   "license": "MIT",
   "repository": {

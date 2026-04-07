@@ -5,51 +5,36 @@ import type { ExtensionModule } from "../types";
 import { log } from "../utils";
 
 const PLUGIN_NAME = "ezsuperpowers";
-const PLUGIN_VERSION = "0.4.0";
+const PLUGIN_VERSION = "0.5.0";
 
 export const pluginBridgeModule: ExtensionModule = {
   id: "pluginBridge",
 
   async activate(context) {
-    const extensionPath = context.extensionPath;
-    const pluginSourceDir = path.join(extensionPath, "claude-plugin");
-    const claudePluginsDir = path.join(getClaudeConfigDir(), "plugins", "cache", PLUGIN_NAME);
+    const pluginSourceDir = path.join(context.extensionPath, "claude-plugin");
 
-    try {
-      copyDirRecursive(pluginSourceDir, claudePluginsDir);
-      makeHooksExecutable(path.join(claudePluginsDir, "hooks"));
-      log(`Claude plugin installed to ${claudePluginsDir}`);
-    } catch (err) {
-      log(`Failed to install Claude plugin: ${err}`, "error");
+    if (!fs.existsSync(pluginSourceDir)) {
+      log(`Claude plugin source not found: ${pluginSourceDir}`, "error");
       return;
     }
 
-    registerPluginInSettings(claudePluginsDir);
+    try {
+      makeHooksExecutable(path.join(pluginSourceDir, "hooks"));
+    } catch (err) {
+      log(`Failed to chmod hooks: ${err}`, "warn");
+    }
+
+    registerPluginInSettings(pluginSourceDir);
     enablePluginInClaudeSettings();
 
     vscode.window.showInformationMessage("ezsuperpowers: plain language mode active in Claude.");
+    log(`Claude plugin registered from ${pluginSourceDir}`);
   },
 };
 
 function getClaudeConfigDir(): string {
   const home = process.env["HOME"] ?? process.env["USERPROFILE"] ?? "";
   return path.join(home, ".claude");
-}
-
-function copyDirRecursive(src: string, dest: string): void {
-  if (!fs.existsSync(src)) {
-    throw new Error(`Plugin source not found: ${src}`);
-  }
-  fs.mkdirSync(dest, { recursive: true });
-  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    if (entry.isDirectory()) {
-      copyDirRecursive(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
 }
 
 function makeHooksExecutable(hooksDir: string): void {
@@ -102,7 +87,7 @@ function registerPluginInSettings(pluginDir: string): void {
 
     fs.mkdirSync(path.dirname(installedPluginsPath), { recursive: true });
     fs.writeFileSync(installedPluginsPath, JSON.stringify(installed, null, 2));
-    log(`Registered ${PLUGIN_NAME} plugin in Claude Code`);
+    log(`Registered ${PLUGIN_NAME} plugin pointing to ${pluginDir}`);
   } catch (err) {
     log(`Failed to register plugin: ${err}`, "warn");
   }
