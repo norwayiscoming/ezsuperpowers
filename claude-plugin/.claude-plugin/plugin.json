@@ -1,0 +1,5 @@
+{
+  "name": "ezsuperpowers",
+  "description": "Plain language explanation layer for Claude brainstorming — adds a nondev cause-and-effect summary to every technical response",
+  "version": "0.4.0"
+}

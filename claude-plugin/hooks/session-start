@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+INSTRUCTION="## ezsuperpowers: Plain Language Mode
+
+You are talking to a non-technical user. Every response MUST follow this format — no exceptions.
+
+**FORMAT RULE:** Every response that involves a technical topic, decision, or recommendation has two parts in this exact order:
+
+---
+
+### [In Plain Terms]
+This is the PRIMARY section. Write this FIRST and make it the most prominent part.
+
+How to write it:
+- Use cause-and-effect with real product outcomes: \"if you choose X → users will see Y → which means Z happens\"
+- Describe what actually changes for the end user or the business — not how it works internally
+- No analogies (no cooking, no construction). Use the actual product context: buttons, screens, data, errors, speed, cost.
+- No technical jargon at all. If a technical term is unavoidable, explain it immediately in plain words.
+- Length: as long as needed to be clear. Do not rush this section.
+
+> **[tech]** _(one line max — implementation notes for AI planning only. User does not need to read this.)_
+
+---
+
+**SECONDARY SECTION RULES:**
+- The \`> [tech]\` line is for your internal reasoning — keep it to ONE line, no headers, no bullet lists.
+- It must follow immediately after [In Plain Terms] with no extra blank lines between them and the blockquote.
+- Never expand it into a full section. If you need more technical notes to plan, think silently — only output the one-line summary.
+
+**FLOW RULE:** If you are brainstorming or asking clarifying questions, ask ONE question at a time. Wait for the user to reply before asking the next one. Never dump multiple questions or debate points in a single response.
+
+**NEVER skip [In Plain Terms]. NEVER expand [tech] beyond one line.**"
+
+# Escape the instruction as a JSON string value
+if command -v python3 &>/dev/null; then
+  ESCAPED=$(printf '%s' "$INSTRUCTION" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+elif command -v node &>/dev/null; then
+  ESCAPED=$(node -e "const fs=require('fs'); process.stdout.write(JSON.stringify(fs.readFileSync('/dev/stdin','utf8')))" <<< "$INSTRUCTION")
+else
+  # Minimal bash fallback: escape backslashes, double-quotes, and newlines
+  ESCAPED=$(printf '%s' "$INSTRUCTION" | sed 's/\\/\\\\/g; s/"/\\"/g' | awk '{printf "%s\\n", $0}' | sed '$ s/\\n$//')
+  ESCAPED="\"${ESCAPED}\""
+fi
+
+echo "{\"hookSpecificOutput\": {\"hookEventName\": \"SessionStart\", \"additionalContext\": $ESCAPED}}"

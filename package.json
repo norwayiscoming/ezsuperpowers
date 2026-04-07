@@ -1,0 +1,45 @@
+{
+  "name": "ezsuperpowers",
+  "displayName": "ezsuperpowers — Plain Language Mode for Claude",
+  "description": "Adds a plain-language explanation layer to Claude brainstorming. Every technical response gets a nondev-friendly cause-and-effect summary.",
+  "version": "0.4.0",
+  "publisher": "NorwayIsHere",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/norwayiscoming/ezsuperpowers"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": ["Other", "Machine Learning"],
+  "keywords": ["claude", "claude-code", "ai", "nondev", "brainstorm", "anthropic"],
+  "galleryBanner": { "color": "#1a1a2e", "theme": "dark" },
+  "icon": "media/icon.png",
+  "activationEvents": ["onStartupFinished"],
+  "main": "./dist/extension.js",
+  "contributes": {},
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@stylistic/eslint-plugin": "^2.13.0",
+    "@types/node": "^22",
+    "@types/vscode": "^1.100.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.13.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.0"
+  },
+  "dependencies": {}
+}
